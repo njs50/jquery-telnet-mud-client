@@ -34,6 +34,11 @@
 					
 					data.target = $this;
 					
+					data.holder = $('<div />')
+						.hide()
+						.attr('id',$this.attr('id') + '-swfholder' )
+					;
+					
 					data.currentLength = 0;
 					
 					data.commandHistory = [];
@@ -42,6 +47,7 @@
 					// setup
 					$this.append(data.output)
 						.append(data.input)
+						.append(data.holder)
 						.addClass('telnetContainer')
 						.bind('add_line.telnet', methods.add_line)
 						.bind('append_line.telnet', methods.append_line)
@@ -51,20 +57,11 @@
 					
 					$(window).unbind('resize.telnet').bind('resize.telnet',methods.resize_evt);
 					
-					var flashvars = {
-						container_id: $this.attr('id')
-					};
-					var params = {
-						menu: "false",
-						allowScriptAccess: "always",
-						wmode: "transparent"
-					};
-					var attributes = {
-						id: "haxe",
-						name: "telnetSWF"
-					};
+					var flashvars = { container_id: $this.attr('id')};
+					var params = { menu: "false", allowScriptAccess: "always", wmode: "transparent" };
+					var attributes = {};
 
-					swfobject.embedSWF("telnetBridge.swf", "swfHolder", "0", "0", "11.0.0","expressInstall.swf", flashvars, params, attributes, function(e){
+					swfobject.embedSWF("telnetBridge.swf", data.holder.attr('id'), "0", "0", "10.0.0","expressInstall.swf", flashvars, params, attributes, function(e){
 						data.swf_ref = e.ref;
 					});					
 					
