@@ -8,10 +8,16 @@
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>		
 	<script src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>		
+
+	
+	<link href="boilerplate.css" rel='stylesheet' type='text/css'>
 	
 	<link href='http://fonts.googleapis.com/css?family=Anonymous+Pro' rel='stylesheet' type='text/css'>
 	
+	
+	
 	<link href="telnet.css" type="text/css" rel="Stylesheet" />
+	
 	<script src="jquery.telnet.js"></script>
 		
 </head>
@@ -28,7 +34,7 @@
 
 <script type="text/javascript">
 
-	$('#telnetTest').telnet({port:4000});
+	$('#telnetTest').telnet({host:'vault-thirteen.net', port:4000});
 	
 	$('#telnetTest').bind('parse_prompt.telnet', function(evt,txt){
 		 if(txt.match(/Choice:/)) { $('#telnetTest').telnet('sendText','TestUnit') }

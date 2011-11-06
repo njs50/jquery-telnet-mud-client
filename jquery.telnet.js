@@ -13,9 +13,12 @@
 				// If the plugin hasn't been initialized yet (initial setup/defaults)
 				if ( ! data ) {
 					
+					// defaults
 					data = {
 						port: 23,
 						host: window.location.hostname.replace(/www\./i,''),
+						commandHistoryLength: 3,
+						maxScrollback: 20000
 					}
 					
 					data.output = $('<pre />')
@@ -26,10 +29,15 @@
 					
 					data.input = $('<input type="text" />')
 						.addClass('inText')
-						.bind('keypress.telnet', methods.inKey)						
+						.bind('keyup.telnet', methods.inKey)						
 					;
 					
 					data.target = $this;
+					
+					data.currentLength = 0;
+					
+					data.commandHistory = [];
+					data.commandHistoryPos = 0;
 					
 					// setup
 					$this.append(data.output)
@@ -123,18 +131,33 @@
 				
 		add_line : function(evt, text) {
 			var data = $(this).data('telnet'); 
-			data.output.append('\n' + text ); 
+			data.output.append('\n' + text ); 			
+			data.currentLength += text.length;
+			
+			// if we've passed the max scroll back remove the overflow + 20%
+			if (data.currentLength > data.maxScrollback ) {
+				var rawhtml = data.output.html();
+				var newstart = rawhtml.indexOf('\n', data.currentLength - data.maxScrollback + Math.ceil(data.maxScrollback * 0.2) );
+				rawhtml = rawhtml.substr(newstart + 1);
+				data.currentLength = rawhtml.length;
+				data.output.html(rawhtml);
+			}
+			
 			data.output.scrollTop(data.output.prop("scrollHeight"));
 		},
 				
 		append_line : function(evt, text) {
 			var data = $(this).data('telnet'); 
+			
+			data.currentLength += text.length;
+			
 			data.output.append( text );					
 		},		
 					
 		reset : function(evt, text) { 
 			var data = $(this).data('telnet'); 
-			data.output.empty(); 		
+			data.output.empty();
+			data.currentLength = 0; 		
 		},
 		
 		log : function(evt, text) {
@@ -144,18 +167,52 @@
 		},
 
 		inKey: function(event) {
-			if ( event.which == 13 ) {
+			switch (event.which) {
+				// enter
+				case 13:
+					event.preventDefault();
 
-				event.preventDefault();
-
-				var $this = $(this).parent();
-				var data = $this.data('telnet');
-								
-				data.swf_ref.sendText(data.input.val());	
-				data.input.val('');								
+					var $this = $(this).parent();
+					var data = $this.data('telnet');				
+					var cmd = data.input.val();
 				
-			}			
+					// if this command came from the history don't add it to the history
+					if (data.commandHistoryPos == 0 || data.commandHistory[data.commandHistory.length - data.commandHistoryPos] != cmd ){
+						data.commandHistory.push(cmd);	
+					}
+				
+					data.commandHistoryPos = 0;	
+				
+				
+					if (data.commandHistory.length > data.commandHistoryLength) data.commandHistory = data.commandHistory.slice(1);
+				
+					// calling sendText so we can pass the correct context (i.e this->parent)			
+					methods.sendText.call($this[0],cmd);
+					data.input.val('');								
+					break;
+				
+				// up
+				// down
+				case 38:
+				case 40:						
+					var data = $(this).parent().data('telnet');
+					var cmd = "";					
+					// don't go below zero (i.e if they go down from 0, and if they go up from max reset to 0)				
+					data.commandHistoryPos = Math.max(0,(data.commandHistoryPos + (39 - event.which) )) % (data.commandHistory.length + 1);
+					if (data.commandHistoryPos) {
+						cmd = data.commandHistory[data.commandHistory.length - data.commandHistoryPos];
+					}				
+					data.input.val(cmd);				
+					break;		
+									
+				default:	
+					// no-op atm
+					
+			}
+			
+
 		},
+
 		
 		sendText : function(text) { 
 			var data = $(this).data('telnet');

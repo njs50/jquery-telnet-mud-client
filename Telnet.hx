@@ -260,6 +260,9 @@ class Telnet {
 						var class_list : String = '';
 						var aBuffer : Array<String> = buffer.split(';');
 						
+						// resort buffer so that commands (resets and bolds etc) happen before setting colors
+						aBuffer.sort(function(x:String,y:String) : Int { return Std.parseInt(x) - Std.parseInt(y); } );
+						
 						for (code in aBuffer ) {
 
 							var ansiCode : Int = Std.parseInt(code);
@@ -302,7 +305,7 @@ class Telnet {
 							ansi_line_buffer += '<span class="' + class_list + '">';
 							openSpans++;	
 						} 
-
+						
                 		state = 0;
             		} else {                    
                 		// ignoring all ansi codes other than color changes!                    		
