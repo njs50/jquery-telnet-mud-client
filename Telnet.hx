@@ -14,6 +14,9 @@ import flash.events.SecurityErrorEvent;
 import flash.events.ErrorEvent;
 import flash.events.ProgressEvent;
 
+// to create download of profile
+//import flash.net.FileReference;
+
 import flash.external.ExternalInterface;
 
 class Telnet {
@@ -96,7 +99,9 @@ class Telnet {
 				
 		ExternalInterface.addCallback("sendText",sendText);
 		ExternalInterface.addCallback("connect",connect);
-		ExternalInterface.addCallback("disconnect",disconnect);		
+		ExternalInterface.addCallback("disconnect",disconnect);			
+	//	ExternalInterface.addCallback("saveFile",saveFile);	
+			
 		
 		ExternalInterface.call( "$('#" + container_id + "').telnet", "ready");
 	}
@@ -430,6 +435,14 @@ class Telnet {
 		jsCall("log",text);
 	}
 	
+	/* -- requires user interaction. ie need to add an element to the page
+	public function saveFile(fn:String, data:String) {
+        var ba:ByteArray = new ByteArray();
+		var fileReference = new FileReference();
+		ba.writeMultiByte(data, "UTF-8");
+		fileReference.save(ba,fn);
+	}
+	*/
 
  
 }

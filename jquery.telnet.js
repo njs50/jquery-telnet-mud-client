@@ -11,7 +11,7 @@
 				var data = $this.data('telnet');
 
 				// If the plugin hasn't been initialized yet (initial setup/defaults)
-				if ( ! data ) {
+				if ( !data ) {
 					
 					// defaults
 					data = {
@@ -39,13 +39,16 @@
 						.attr('id',$this.attr('id') + '-swfholder' )
 					;
 					
-					data.currentLength = 0;
+					data.commandBar = $('<div class="commandBar"></div>');
 					
+					data.currentLength = 0;					
 					data.commandHistory = [];
 					data.commandHistoryPos = 0;
 					
 					// setup
-					$this.append(data.output)
+					$this
+						.append(data.commandBar)
+						.append(data.output)
 						.append(data.input)
 						.append(data.holder)
 						.addClass('telnetContainer')
@@ -86,7 +89,7 @@
 		
 		resize: function() {
 			var data = $(this).data('telnet');
-			data.output.outerHeight(data.target.outerHeight() - data.input.outerHeight());
+			data.output.outerHeight(data.target.outerHeight() - data.input.outerHeight() - data.commandBar.outerHeight());
 		},
 		
 		ready: function() {
@@ -215,6 +218,7 @@
 			var data = $(this).data('telnet');
 			data.swf_ref.sendText(text); 			
 		}
+
 
   };
 
